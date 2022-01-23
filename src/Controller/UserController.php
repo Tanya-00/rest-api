@@ -11,28 +11,32 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-
-#[Route('/user')]
+/**
+ * @Route("/user")
+ */
 class UserController extends AbstractController
 {
-
-    #[Route('/', name: 'reg', methods: ['POST'])]
+    /**
+     * @Route("/reg", name="reg",methods={"POST"})
+     */
     public function registration(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHash): Response
     {
         $login = $request->get('login');
-        $pasword = $request->get('passwor');
+        $password = $request->get('password');
         $content = $request->getContentType();
 
-        if(!isset($login)) {
+        $data = json_decode($request->getContent(), true);
+
+        if(!isset($data['login'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't login in json file"
             ]);
         }
 
-        if(!isset($password)) {
+        if(!isset($data['password'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't password in json file"
             ]);
         }
@@ -44,7 +48,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        if(0 !== count($userRepository->findBy(['login'=>$login]))) {
+        if($userRepository->findOneBy(["login"=>$data["login"]]) != null) {
             return $this->json ([
                 'status'=>400,
                 'message'=>"Such a user is already registered"
@@ -52,8 +56,8 @@ class UserController extends AbstractController
         }
 
         $user = new User();
-        $user->setLogin($login);
-        $user->setPassword($userPasswordHash->hashPassword($user, $request->get('password')));
+        $user->setLogin($data["login"]);
+        $user->setPassword($data["password"]);
 
         $ent = $this->getDoctrine()->getManager();
         $ent->persist($user);

@@ -11,10 +11,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/todo/list')]
+/**
+ * @Route("/todo")
+ */
 class TodoListController extends AbstractController
 {
-    #[Route('/', name: 'todos', methods: ['GET'])]
+    /**
+     * @Route("/todos", name="todos",methods={"GET"})
+     */
     public function todos(Request $request, UserRepository $userRepository, TodoListRepository $todoRepository) : Response {
 
         $content = $request->getContentType();
@@ -29,28 +33,28 @@ class TodoListController extends AbstractController
 
         if(!isset($data['login'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't login in json file"
             ]);
         }
 
         if($data['login'] == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Login wasn't specified"
             ]);
         }
 
         if(!isset($data['password'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't password in json file"
             ]);
         }
 
         if($data['password'] == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Password wasn't specified"
             ]);
         }
@@ -59,7 +63,7 @@ class TodoListController extends AbstractController
 
         if($user == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Invalid login"
             ]);
         }
@@ -67,7 +71,7 @@ class TodoListController extends AbstractController
         if($user->getPassword() !== $data['password']) {
             if($user == null) {
                 return $this->json ([
-                    'sratus'=>400,
+                    'status'=>400,
                     'message'=>"Invalid password"
                 ]);
             }
@@ -85,20 +89,22 @@ class TodoListController extends AbstractController
             }
 
             return $this->json ([
-                'sratus'=>200,
+                'status'=>200,
                 'todoList'=>$result
             ]);
         }
         else {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There is no such user"
             ]);
         }
 
     }
 
-    #[Route('/', name: 'createTodo', methods: ['POST'])]
+    /**
+     * @Route("/create", name="create",methods={"POST"})
+     */
     public function createTodo(Request $request, UserRepository $userRepository) : Response {
         $content = $request->getContentType();
         $data = json_decode($request->getContent(), true);
@@ -119,42 +125,42 @@ class TodoListController extends AbstractController
 
         if(!isset($data['login'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't login in json file"
             ]);
         }
 
         if($data['login'] == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Login wasn't specified"
             ]);
         }
 
         if(!isset($data['password'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't password in json file"
             ]);
         }
 
         if($data['password'] == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Password wasn't specified"
             ]);
         }
 
         if(!isset($data['list'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't to do list in json file"
             ]);
         }
 
         if($data['list'] == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"List wasn't specified"
             ]);
         }
@@ -163,7 +169,7 @@ class TodoListController extends AbstractController
 
         if($user == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Invalid login"
             ]);
         }
@@ -171,7 +177,7 @@ class TodoListController extends AbstractController
         if($user->getPassword() !== $data['password']) {
             if($user == null) {
                 return $this->json ([
-                    'sratus'=>400,
+                    'status'=>400,
                     'message'=>"Invalid password"
                 ]);
             }
@@ -190,20 +196,22 @@ class TodoListController extends AbstractController
             $ent->flush();
 
             return $this->json ([
-                'sratus'=>200,
+                'status'=>200,
                 'message'=>"Juhu, you have created todo list"
             ]);
         }
         else {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Something went wrong and todo list didn't appear:("
             ]);
         }
     }
 
-    #[Route('/ {id}', name: 'deleteTodo', methods: ['DELETE'])]
-    public function deleteTodo(Request $request, UserRepository $userRepository, TodoListRepository $todoRepository) : Response {
+    /**
+     * @Route("/ {id}", name="deleteTodo",methods={"DELETE"})
+     */
+    public function deleteTodo(Request $request, UserRepository $userRepository, TodoListRepository $todoRepository, $id) : Response {
         $content = $request->getContentType();
         $data = json_decode($request->getContent(), true);
 
@@ -216,28 +224,28 @@ class TodoListController extends AbstractController
 
         if(!isset($data['login'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't login in json file"
             ]);
         }
 
         if($data['login'] == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Login wasn't specified"
             ]);
         }
 
         if(!isset($data['password'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't password in json file"
             ]);
         }
 
         if($data['password'] == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Password wasn't specified"
             ]);
         }
@@ -246,7 +254,7 @@ class TodoListController extends AbstractController
 
         if($user == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Invalid login"
             ]);
         }
@@ -254,7 +262,7 @@ class TodoListController extends AbstractController
         if($user->getPassword() !== $data['password']) {
             if($user == null) {
                 return $this->json ([
-                    'sratus'=>400,
+                    'status'=>400,
                     'message'=>"Invalid password"
                 ]);
             }
@@ -265,7 +273,7 @@ class TodoListController extends AbstractController
 
             if($todoL == null) {
                 return $this->json ([
-                    'sratus'=>400,
+                    'status'=>400,
                     'message'=>"Todo list wasn't found"
                 ]);
             }
@@ -278,7 +286,7 @@ class TodoListController extends AbstractController
 
                 if($user == null) {
                     return $this->json ([
-                        'sratus'=>200,
+                        'status'=>200,
                         'message'=>"Todo list successfully deleted"
                     ]);
                 }
@@ -286,14 +294,16 @@ class TodoListController extends AbstractController
         }
         else {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"You can't delete this todo list"
             ]);
         }
     }
 
-    #[Route('/{id}', name: 'editTodo', methods: ['PUT'])]
-    public function editTodo(Request $request, UserRepository $userRepository, TodoListRepository $todoRepository) : Response {
+    /**
+     * @Route("/ {id}", name="editTodo",methods={"PUT"})
+     */
+    public function editTodo(Request $request, UserRepository $userRepository, TodoListRepository $todoRepository, $id) : Response {
         $content = $request->getContentType();
         $data = json_decode($request->getContent(), true);
 
@@ -306,28 +316,28 @@ class TodoListController extends AbstractController
 
         if(!isset($data['login'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't login in json file"
             ]);
         }
 
         if($data['login'] == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Login wasn't specified"
             ]);
         }
 
         if(!isset($data['password'])) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"There isn't password in json file"
             ]);
         }
 
         if($data['password'] == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Password wasn't specified"
             ]);
         }
@@ -336,7 +346,7 @@ class TodoListController extends AbstractController
 
         if($user == null) {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"Invalid login"
             ]);
         }
@@ -344,7 +354,7 @@ class TodoListController extends AbstractController
         if($user->getPassword() !== $data['password']) {
             if($user == null) {
                 return $this->json ([
-                    'sratus'=>400,
+                    'status'=>400,
                     'message'=>"Invalid password"
                 ]);
             }
@@ -355,7 +365,7 @@ class TodoListController extends AbstractController
 
             if($todoL == null) {
                 return $this->json ([
-                    'sratus'=>400,
+                    'status'=>400,
                     'message'=>"Todo list wasn't found"
                 ]);
             }
@@ -367,14 +377,14 @@ class TodoListController extends AbstractController
                 $ent->flush();
 
                 return $this->json ([
-                    'sratus'=>200,
+                    'status'=>200,
                     'message'=>"The changes were made successfully"
                 ]);
             }
         }
         else {
             return $this->json ([
-                'sratus'=>400,
+                'status'=>400,
                 'message'=>"You can't changes this todo list"
             ]);
         }

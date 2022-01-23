@@ -4,11 +4,11 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="`user`")
  */
 class User
 {
@@ -20,28 +20,30 @@ class User
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=255)
      */
     private $login;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=255)
      */
     private $password;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $FIO;
 
     /**
-     * @ORM\OneToMany(targetEntity=TodoList::class, mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=TodoList::class, mappedBy="userTodo")
      */
-    private $TodoList;
+    private $todoList;
+
+    /**
+     * @ORM\OneToMany(targetEntity=File::class, mappedBy="userFile")
+     */
+    private $files;
 
     public function __construct()
     {
         $this->todoList = new ArrayCollection();
+        $this->files = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -73,42 +75,61 @@ class User
         return $this;
     }
 
-    public function getFIO(): ?string
-    {
-        return $this->FIO;
-    }
-
-    public function setFIO(string $FIO): self
-    {
-        $this->FIO = $FIO;
-
-        return $this;
-    }
 
     /**
      * @return Collection|TodoList[]
      */
     public function getTodoList(): Collection
     {
-        return $this->TodoList;
+        return $this->todoList;
     }
 
     public function addTodoList(TodoList $todoList): self
     {
-        if (!$this->todoList->contains(todoList)) {
-            $this->todoList[] = todoList;
-            todoList->setUser($this);
+        if (!$this->todoList->contains($todoList)) {
+            $this->todoList[] = $todoList;
+            $todoList->setUserTodo($this);
         }
 
         return $this;
     }
 
-    public function removeTodoList(TodoThingy todoList): self
+    public function removeTodoList(TodoList $todoList): self
     {
-        if ($this->todoList->removeElement(todoList)) {
+        if ($this->todoList->removeElement($todoList)) {
             // set the owning side to null (unless already changed)
-            if (todoList->getUser() === $this) {
-                todoList->setUser(null);
+            if ($todoList->getUserTodo() === $this) {
+                $todoList->setUserTodo(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|File[]
+     */
+    public function getFiles(): Collection
+    {
+        return $this->files;
+    }
+
+    public function addFile(File $file): self
+    {
+        if (!$this->files->contains($file)) {
+            $this->files[] = $file;
+            $file->setUserFile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFile(File $file): self
+    {
+        if ($this->files->removeElement($file)) {
+            // set the owning side to null (unless already changed)
+            if ($file->getUserFile() === $this) {
+                $file->setUserFile(null);
             }
         }
 

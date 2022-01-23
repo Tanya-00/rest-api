@@ -20,13 +20,13 @@ class TodoList
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $List;
+    private $list;
 
     /**
-     * @ORM\ManyToOne(targetEntity=user::class, inversedBy="todoList")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="todoList")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $UserTodo;
+    private $userTodo;
 
     public function getId(): ?int
     {
@@ -35,24 +35,24 @@ class TodoList
 
     public function getList(): ?string
     {
-        return $this->List;
+        return $this->list;
     }
 
-    public function setList(string $List): self
+    public function setList(string $list): self
     {
-        $this->List = $List;
+        $this->list = $list;
 
         return $this;
     }
 
-    public function getUserTodo(): ?string
+    public function getUserTodo(): ?User
     {
-        return $this->UserTodo;
+        return $this->userTodo;
     }
 
-    public function setUserTodo(string $UserTodo): self
+    public function setUserTodo(?User $userTodo): self
     {
-        $this->UserTodo = $UserTodo;
+        $this->userTodo = $userTodo;
 
         return $this;
     }
