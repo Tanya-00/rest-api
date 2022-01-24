@@ -8,10 +8,13 @@ use Gedmo\Sluggable\Util\Urlizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+use Exception;
 
 /**
  * @Route("/files")
@@ -94,27 +97,30 @@ class FileController extends AbstractController
     /**
      * @Route("/delete", name="delete", methods={"DELETE"})
      */
-    public function deleteFile(Request $request, FileRepository $fileRepository, $origName) : Response
+    public function delete_file(FileRepository $fileRepository, $name): Response
     {
-        $file = $fileRepository->findOneBy(['originalName'=>$origName]);
-        if($file) {
+        try {
+            $file = $fileRepository->findOneBy(['originalName' => $name]);
+
             $ent = $this->getDoctrine()->getManager();
             $ent->remove($file);
             $ent->flush();
 
-            $filesystem = new Filesystem();
-            try {
-                $filesystem->remove([$this->getParameter('kernel.project_dir') . '/public/uploads']);
-            } catch (IOExceptionInterface $exception) {
-                return$this->json ([
-                    'status'=>400,
-                    'message'=>"The file has not been deleted, an exception has appeared"
-                ]);
+            $data = $this->getParameter('kernel.project_dir') . '/public/uploads';
+            $fileDir = scandir($data);
+            foreach ($fileDir as $fileDel) {
+                if ($fileDel == $name) {
+                    array_map('unlink', glob($data . '/' . $fileDel));
+                }
             }
-        } else {
-            return$this->json ([
+            return $this->json ([
+                'status'=>200,
+                'message'=>"File deleted"
+            ]);
+        } catch (\Exception $exception) {
+            return $this->json ([
                 'status'=>400,
-                'message'=>"There is no such file"
+                'message'=>"The file has not been deleted, an exception has appeared"
             ]);
         }
     }

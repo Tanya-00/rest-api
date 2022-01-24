@@ -85,21 +85,18 @@ class TodoListController extends AbstractController
                     "id"=>$todo->getId(),
                     "list"=>$todo->getList()
                 ];
-                $result[] = $array;
+                $res[] = $array;
             }
 
             return $this->json ([
                 'status'=>200,
-                'todoList'=>$result
+                'todoList'=>$res
             ]);
         }
-        else {
-            return $this->json ([
-                'status'=>400,
-                'message'=>"There is no such user"
-            ]);
-        }
-
+        return $this->json ([
+            'status'=>400,
+            'message'=>"There is no such user"
+        ]);
     }
 
     /**
@@ -200,12 +197,10 @@ class TodoListController extends AbstractController
                 'message'=>"Juhu, you have created todo list"
             ]);
         }
-        else {
-            return $this->json ([
-                'status'=>400,
-                'message'=>"Something went wrong and todo list didn't appear:("
-            ]);
-        }
+        return $this->json ([
+            'status'=>400,
+            'message'=>"Something went wrong and todo list didn't appear:("
+        ]);
     }
 
     /**
@@ -252,52 +247,34 @@ class TodoListController extends AbstractController
 
         $user = $userRepository->findOneByLogin($data["login"]);
 
-        if($user == null) {
+        if($user == null || $user->getPassword() !== $data['password']) {
             return $this->json ([
                 'status'=>400,
-                'message'=>"Invalid login"
+                'message'=>"Invalid login or password"
             ]);
         }
 
-        if($user->getPassword() !== $data['password']) {
-            if($user == null) {
-                return $this->json ([
-                    'status'=>400,
-                    'message'=>"Invalid password"
-                ]);
-            }
-        }
+        $Todo = $todoRepository->find($id);
 
-        if($user !== null && $user->getPassword() == $data['password']) {
-            $todoL = $todoRepository->findBy($id);
-
-            if($todoL == null) {
-                return $this->json ([
-                    'status'=>400,
-                    'message'=>"Todo list wasn't found"
-                ]);
-            }
-            else {
-                $user->removeTodo($todoL);
-
-                $ent = $this->getDoctrine()->getManager();
-                $ent->remove($todoL);
-                $ent->flush();
-
-                if($user == null) {
-                    return $this->json ([
-                        'status'=>200,
-                        'message'=>"Todo list successfully deleted"
-                    ]);
-                }
-            }
-        }
-        else {
+        if ($Todo == null)
+        {
             return $this->json ([
                 'status'=>400,
-                'message'=>"You can't delete this todo list"
+                'message'=>"Todo exist"
             ]);
         }
+
+        $user->removeTodo($Todo);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->merge($user);
+        $em->remove($Todo);
+        $em->flush();
+
+        return $this->json ([
+            'status'=>200,
+            'message'=>"Todo remove"
+        ]);
     }
 
     /**
@@ -369,26 +346,21 @@ class TodoListController extends AbstractController
                     'message'=>"Todo list wasn't found"
                 ]);
             }
-            else {
-                $todoL->setList($data['list']);
+            $todoL->setList($data['list']);
 
-                $ent = $this->getDoctrine()->getManager();
-                $ent->persist($todoL);
-                $ent->flush();
+            $ent = $this->getDoctrine()->getManager();
+            $ent->persist($todoL);
+            $ent->flush();
 
-                return $this->json ([
-                    'status'=>200,
-                    'message'=>"The changes were made successfully"
-                ]);
-            }
-        }
-        else {
             return $this->json ([
-                'status'=>400,
-                'message'=>"You can't changes this todo list"
+                'status'=>200,
+                'message'=>"The changes were made successfully"
             ]);
         }
-
+        return $this->json ([
+            'status'=>400,
+            'message'=>"You can't changes this todo list"
+        ]);
     }
 
 }
