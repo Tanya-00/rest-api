@@ -1,4 +1,4 @@
 #!/bin/bash
 
-tools/php-cs-fixer/vendor/bin/php-cs-fixer fix src
+vendor/bin/ecs check src
 git add .
